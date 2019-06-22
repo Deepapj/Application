@@ -1,0 +1,1924 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+      layout:decorator="layout">
+      
+	<head>
+        <title>HAO Agent</title>
+
+    </head>
+    <body>
+    	<div layout:fragment="content">
+    	  <!-- Form Name -->
+                                   
+<div class=""><h3><i class="far fa-list-alt"></i> <span th:text="#{label.hao.header}">HAO SCREEN</span></h3></div>
+                                   	<form id="haoagentForm" class="form-horizontal form-border" action="#" th:action="@{/hao/haoagent}" th:object="${call}" method="post">
+                                     	<fieldset>
+                                        <div class="col-md-8 container scrollbar-outer" id="left">                                         
+                                         	<div class="form-group">
+                                         	<h3 class="field-title"><i class="fa fa-language"></i> Language</h3>
+                                           		<label class="col-md-4 control-label" for="language" th:text="#{label.hao.language}">In which language do you speak?</label>
+								                <div class="lang-content">
+								                <label th:each="language : ${languageTypes}" th:for="${#ids.next('language')}" class="col-md-2 control-label my-radioBtn">
+								                    <input type="radio" name="language" th:field="*{language}"  th:text="#{${language.value}}" th:value="${language.key}"/>
+								                <span class="checkmark"></span>
+								                </label>
+								                 </div>
+								            </div>
+                                            
+<hr size="60">
+                                            <div class="form-group">
+                                            	<h3 class="field-title"><i class="fa fa-user"></i> Caller Information</h3>
+                                                <label class="col-md-2 control-label" for="name" th:text="#{label.hao.name}">Caller Name</label>
+                                                	<div class="col-md-2">
+                                                    	<input id="name" name="patient.name" type="text" placeholder="Name" class="form-control input-md" th:value="*{patient?.name}"/>
+                                                	</div> 
+                                                </div>
+                                                <div class="form-group">
+                                                <label class="col-md-2 control-label" for="age" th:text="#{label.hao.age}">Age</label>
+                                                	<div class="col-md-2">
+                                                    	<input id="age"  name="patient.age" type="text" placeholder="Age" class="form-control input-md" th:value="*{patient?.age}"/>
+                                                	</div>
+                                                	<div class="col-md-2">
+	                                                	<select name="patient.ageIn" id="patient.ageIn" th:field="${call.patient.ageIn}"  class="form-control input-md">
+										                	<option th:each="ageIn : ${ageInMap}" th:value="${ageIn.key}" th:text="${ageIn.value}"></option>
+										            	</select>
+                                                	</div>
+                                                </div>
+                                                <div class="form-group">
+                                                <label class="col-md-2 control-label" for="gender" th:text="#{label.hao.gender}">Gender</label>
+                                                	<div class="col-md-3">
+                                               			<select name="patient.gender" id="gender" th:field="${call.patient.gender}"  class="form-control input-md"> <!--th:field="*{patient?.gender}"   -->     
+									               			<option value="">Select Gender</option>
+									                		<option th:each="gender : ${genderMap}" th:value="${gender.key}" th:text="${gender.value}"></option>
+									            		</select>
+									           	 	</div>
+                                            	</div>
+  <hr>                                          
+     										<div class="form-group">
+     										<h3 class="field-title"><i class="glyphicon glyphicon-tags"></i> Category Selection</h3>
+                                                <label class="col-md-2 control-label" for="patient.category" th:text="#{label.hao.category}">Category</label>
+                                                	<div class="col-md-2">
+	                                                	<select name="patient.category" id="patient.category" th:field="${call.patient.category}"  class="form-control input-md">       
+										               		<option value="">Select Category</option>
+										                	<option th:each="category : ${categoryMap}" th:value="${category.key}" th:text="${category.value}"></option>
+										            		</select>
+                                                	</div> 
+                                                </div>
+                                             <div class="form-group">
+                                                        <label class="col-md-2 control-label" for="gender" th:text="#{label.hao.symptoms}">Symptoms</label>
+                                                <div class="col-md-3">
+                                                <select name="patient.symptoms" id="symptoms" th:field="${call.patient.symptoms}"  class="form-control input-md"> <!--th:field="*{patient?.gender}"   -->     
+									                <option value="">Select Symptoms</option>
+									                <option th:each="symptoms : ${symptomsMap}" th:value="${symptoms.symptomsCode}" th:text="${symptoms.symptomsName}"></option>
+									            </select>
+									            </div>
+									            <a class="btn btn-primary" onclick="retrieveSymptoms()" th:text="#{label.hao.getSymptoms}">Get Symptoms</a>
+                                            </div>
+<hr>
+											<div class="form-group">
+											<div class="col-md-4 container" id="treeDiv">	
+												<div id="treeview-checkable"></div>
+											</div>	
+											<div class="col-md-8 container" id="treeDiv">
+											    <div id="checkable-output" style="display:none">
+											    	<div class="p-3 mb-2 desc-content">Symptoms</div>
+											    	<div id="checkable-output-symptoms" >
+											    	</div>
+											    	<div class="p-3 mb-2 desc-content"> Action</div>
+											    	<div id="checkable-output-action" >
+											    	</div>
+											    	<div class="p-3 mb-2 desc-content">Do's and Don'ts</div>
+											    	<div id="checkable-output-dosndonts" >
+											    	</div>
+											    	<div class="p-3 mb-2 desc-content">Information</div>
+											    	<div id="checkable-output-information" >
+											    	</div>
+											    </div>
+											</div>
+											</div>	
+  <hr>                                          
+                                            
+                                             <div class="form-group"> 
+                                               	<div class="col-md-3">
+                                                    <button id="summaryList" type="button" name="summaryList" th:text="#{label.hao.summaryList}"  class="btn btn-primary" onclick="retrieveAllDiseaseInfo()">
+                                                        All disease Summary List
+                                                    </button>
+                                                    
+                                                </div>
+                                                
+                                                <!-- <label class="col-md-4 control-label" for="diseaseSummary"  th:text="#{label.hao.diseaseSummary}">Disease Summary for this symptom</label>
+                                                  	<div class="col-md-5">
+                                                     <label class="col-md-3 control-label" for="yes" th:text="#{label.hao.yes}">Yes</label>
+                                                      <label class="col-md-3 control-label" for="no" th:text="#{label.hao.no}">No</label>	
+                                                	</div> -->
+                                               </div>
+                                                
+                                                <div class="form-group bg-grey">  
+                                                <h3 class="field-title"><i class="glyphicon glyphicon-bullhorn"></i> Complaints</h3>
+                                                <label class="col-md-3 control-label" for="disease" th:text="#{label.hao.diseaseSummaryProvided}">Disease Summaries Provided</label>
+                                                	<div class="col-md-3">
+                                                		<textarea id="diseaseSummaryProvided"  name="diseaseSummaryProvided" placeholder="Disease" class="form-control input-md"></textarea>
+									           		</div>
+									            
+                                                <label class="col-md-3 control-label" for="mainComplaint" th:text="#{label.hao.mainComplaint}">Main Complaint</label>
+                                                	<div class="col-md-3">
+                                                		<textarea id="mainComplaint"  name="mainComplaint" placeholder="Main Complaint" class="form-control input-md"></textarea>
+									            	</div>
+                                              </div>
+                                           
+                                            
+                                            <div class="form-group bg-grey">    
+                                             
+                                                <!--  <input type="checkbox" name="addComplaint" th:text="#{label.hao.addComplaint}" value="complaint"><b> Add Complaint </b>-->
+                                               		
+                                            	 <label th:each="addComplaint : ${addComplaintMap}" th:for="${#ids.next('addComplaint')}" class="col-md-3 control-label my-checkbox">
+								                    <input type="checkbox" name="addComplaint"  th:field="*{addComplaint}" th:text="#{${addComplaint.value}}" th:value="${addComplaint.key}"/>
+								               		<span class="checkmark-chk"></span>
+								                </label>
+                                               
+                                                	<label class="col-md-6 control-label" for="advice" th:text="#{label.hao.adviceReason}">Other Advice Reason</label>
+                                                		<div class="col-md-3">
+                                                			<select name="patient.advice" id="advice" th:field="${call.patient.advice}"  class="form-control input-md"> <!--th:field="*{patient?.gender}"   -->     
+									                			<option value="">Select Advice Reason</option>
+									                			<option th:each="advice : ${adviceMap}" th:value="${advice.key}" th:text="${advice.value}"></option>
+									            			</select>
+                                                		</div>
+                                            </div>   
+                                                
+                                            <div class="form-group bg-grey">    
+                                                <label class="col-md-3 control-label" for="otherComplaint" th:text="#{label.hao.otherComplaint}">Other Complaint</label>
+                                                	<div class="col-md-3">
+                                                		<textarea id="otherComplaint"  name="otherComplaint" placeholder="Other Complaint" class="form-control input-md"></textarea>
+									            	</div>
+                                                <label class="col-md-3 control-label" for="adviceGiven" th:text="#{label.hao.adviceGiven}"> Advice Given</label>
+                                                	<div class="col-md-3">
+                                                		<textarea id="adviceGiven"  name="adviceGiven" placeholder="Advice Given" class="form-control input-md"></textarea>   
+                                               	 	</div>
+                                               </div>	 	
+                                               	 	
+                                     	 	 <div class="form-group"> 
+                                             <label class="col-md-4" th:text="#{label.hao.benefRegNo}">Beneficiary Registration Number:</label>
+                                               	<div class="col-md-3">
+                                                <input id="patient.id"  name="patient.id" type="text"  class="form-control input-md" th:value="*{patient?.id}" />
+                                                </div>
+                                              </div>
+                                           <hr>      
+                                              
+                                              <div class="form-group"> 
+                                                <div>
+                                                  <p align="justify" class="col-md-8 control-label" th:text="#{label.hao.remBenef}">
+                                                Kindly remember your beneficiary registration number.You can use it for any future calls to 104.<br>
+                                                This Health information help line is operated as public and private partnership between Govt of Karnataka an HMRI.<br>
+                                                As per the requirement and if you have no objection kindly indicate if you belong to SC or ST?
+                                              </div> 
+                                             </div> 
+                                              <hr> 
+                                             <div class="form-group"> 
+                                                <label class="col-md-3 control-label" for="caste" th:text="#{label.hao.caste}">Caste</label>
+                                                	<div class="col-md-3">
+                                                		<select name="patient.caste" id="caste" th:field="${call.patient.caste}" class="form-control input-md">
+                                                		<option value="">-Select Caste-</option>
+                                                		<option th:each="caste : ${casteMap}" th:value="${caste.key}" th:text="${caste.value}"></option>
+                                                		</select>
+              	                                 	</div>
+                                                                           
+                                                <label class="col-md-3 control-label" for="close" th:text="#{label.hao.closeType}">Close Type</label>
+                                                	<div class="col-md-3">
+                                                		<select name="patient.close" id="close" th:field="${call.patient.close}" class="form-control input-md">
+                                                		<option value="">-Select Close Type-</option>
+                                                		<option th:each="close : ${closeMap}" th:value="${close.key}" th:text="${close.value}"></option>
+                                                		</select>
+                                                	</div>
+                                                </div> 
+                                                 <hr> 
+                                               <div class="form-group"> 
+                                                                                             
+                                                <label class="col-md-3 control-label" for="subType" th:text="#{label.hao.subType}">Sub Type</label>
+                                                	<div class="col-md-3">
+                                                		<select name="subType" id="subType" class="form-control input-md"><option>-Select SubType-</option>
+                                    					</select>
+                                                	</div>
+                                               
+                                               <label class="col-md-4 control-label" for="callHandling" th:text="#{label.hao.callHandling}">Is Call handled by another Agent:</label>
+								                <div class="lang-content">
+								                	<label th:each="callHandling : ${yesOrNoMap}" th:for="${#ids.next('callHandling')}" class="col-md-2 control-label my-radioBtn">
+								                    	<input type="radio" name="callHandling" th:field="*{callHandling}" th:text="#{${callHandling.value}}" th:value="${callHandling.key}" />
+								                  <span class="checkmark"></span>  	
+								               </label>
+								                </div>	
+								               </div> 
+								                <hr>                                            
+                                                                                   
+                                            <div class="form-group"> 
+                                              		<label class="col-md-3 control-label" for="callCurrentStatus" th:text="#{label.hao.callCurrentStatus}">Transfer To</label>
+                                              			<div class="col-md-3">
+                                                			<select name="callCurrentStatus" id="callCurrentStatus" th:field="*{callCurrentStatus}"  class="form-control input-md">
+									                			<option value="">Select Transfer agent</option>
+									                			<option th:each="transferType : ${transferDetailsMap}" th:value="${transferType.key}" th:text="${transferType.value}"></option>
+									            			</select>
+									            		</div>
+									            	</div>   
+									            	 <hr>                                          
+                                            <div class="form-group"> 
+									            		<div class="col-md-2">
+									            		
+                                                    	<button id="transfer" name="transfer" value="transfer"  th:text="#{label.hao.transfer}" class="btn btn-primary">
+                                                        Transfer
+                                                    	</button>
+                                                	    </div>
+                                                	     <div class="col-md-2">
+								               
+                                                 <button onclick="feedbackModal()" type="button" id="feedback" name="feedback" th:text="#{label.hao.feedback}" class="btn btn-primary" data-toggle="modal" data-target="#feedbackModal">
+                                                        Feedback
+                                                    </button>
+                                                </div>
+                                               <div class="col-md-2">
+                                                  
+                                                    <button onclick="complaintModal()" type="button" id="complaint" name="complaint"  th:text="#{label.hao.complaint}" class="btn btn-primary" data-toggle="modal" data-target="#complaintModal">
+                                                        Complaint
+                                                    </button>
+                                                  </div>
+                                                	    		
+                                                   <div class="col-md-2">
+                                                   
+                                                    <button id="terminate" name="terminate" value="terminate" class="btn btn-danger" th:text="#{label.hao.terminate}">
+                                                        Terminate
+                                                    </button>
+                                                    </div>
+                                                     
+                                                <div class="col-md-2">
+                                               
+                                                    <button id="close" name="close" value = "close" class="btn" th:text="#{label.hao.close}">
+                                                        Close
+                                                    </button>
+                                                </div>
+									        </div>
+                                           
+                                            
+                                        <!--    <div class="form-group">   
+                                            	 <div class="col-md-2">
+                                            	  <label class="col-md-2 control-label" for="eyeBank"></label>
+                                                     <button onclick="eyeBankModal()" type="button" id="eyeBank" name="eyeBank"  th:text="#{label.hao.eyeBank}"class="btn btn-info" data-toggle="modal" data-target="#eyeBankModal">
+                                                      Eye Bank
+                                                    </button>
+                                             </div>
+                                                
+                                              <div class="col-md-2">
+                                                  <label class="col-md-2 control-label" for="complaint"></label>
+                                                    <button onclick="directoriesModal()" type="button" id="directories" name="directories" th:text="#{label.hao.directories}"class="btn btn-info" data-toggle="modal" data-target="#directoriesModal">
+                                                     Directories
+                                                    </button>
+                                              </div>
+                                               
+                                              <div class="col-md-2">
+                                                  <label class="col-md-2 control-label" for="beneficiary"></label>
+                                                    <button  onclick="beneficiaryModal()" type="button" id="beneficiary" name="beneficiary" th:text="#{label.hao.beneficiary}" class="btn btn-info"  data-toggle="modal" data-target="#beneficiaryModal">
+                                                        Beneficiary
+                                                    </button>
+                                              </div>
+                                                
+                                                 <div class="col-md-2">
+                                                  <label class="col-md-2 control-label" for="nkshp"></label>
+                                                    <button onclick="nkshpModal()" type="button"  id="nkshp" name="nkshp" th:text="#{label.hao.nkshp}" class="btn btn-info" data-toggle="modal" data-target="#nkshpModal">
+                                                        NKSHP
+                                                    </button>
+                                                     </div>
+                                                     
+                                                <div class="col-md-2">
+                                                  <label class="col-md-2 control-label" for="foodSafety"></label>
+                                                    <button onclick="foodSafetyModal()" type="button" id="foodSafety" name="foodSafety" th:text="#{label.hao.foodSafety}" class="btn btn-info" data-toggle="modal" data-target="#foodSafetyModal">
+                                                        Food Safety
+                                                    </button>
+                                                </div> 
+                                             </div> -->
+                                          </div>   
+<!-- Right Div Starts -->
+										  <div class="col-md-4 pull-right container scrollbar-outer" id="right">
+										  <h3 class="field-title pad0" th:text="#{label.hao.callInfo}">Caller Info</h3>										
+										  	<div class="form-group">
+                                                <label class="col-md-3" th:text="#{label.hao.callId}">Caller Id</label>
+                                                <div class="col-md-9">
+                                                    <input id="callId" name="callId" type="text" placeholder="Call Id" class="form-control input-md" th:value="*{callId}"/>
+                                                </div> 
+                                             </div>
+                                            
+                                             <div class="form-group">
+                                                <label class="col-md-3" th:text="#{label.hao.callerNumber}">Phone</label>
+                                                <div class="col-md-9">
+                                                    <input id="callerNumber"  name="callerNumber" type="text" placeholder="Phone" class="form-control input-md" th:value="*{callerNumber}"/>
+                                                </div>
+                                            </div>
+                                           
+                                            <div class="form-group">
+								                <label class="col-md-3" th:text="#{label.hao.callDateTime}">Call Date</label>
+                                                <div class="col-md-9">
+                                                		<input id="callDateTime" type="text" placeholder="Call Date" class="form-control input-md" th:value="*{callDateTime}"/>
+                                                   <!--  <input id="callDateTime"  name="callDateTime" type="text" placeholder="callDate" class="form-control input-md" th:value="*{callDateTime}"/>  -->
+                                                </div>
+								            </div>
+
+                                            <div class="form-group">
+                                                <label class="col-md-3" th:text="#{label.hao.name}">Name</label>
+                                                <div class="col-md-9">
+                                                    <input id="patient.name"  type="text" placeholder="Name" class="form-control input-md" th:value="*{patient?.name}"/>
+                                                </div> 
+                                            </div>
+                                            
+                                             <div class="form-group">
+                                                <label class="col-md-3" th:text="#{label.hao.surName}">Caller Surname</label>
+                                                <div class="col-md-9">
+                                                    <input id="patient.surName" name="patient.surName" type="text" placeholder="Surname" class="form-control input-md" th:value="*{patient?.surName}"/>
+                                                </div> 
+                                            </div>
+                                            
+                                            
+                                            <div class="form-group">
+                                                <label class="col-md-3" th:text="#{label.hao.age}">Age</label>
+                                                <div class="col-md-9">
+                                                    <input id="patient.age"  name="patient.age" type="text" placeholder="Age" class="form-control input-md" th:value="*{patient?.age}"/>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">   
+                                                <label class="col-md-3" th:text="#{label.hao.gender}">Gender</label>
+                                                <div class="col-md-9">
+                                                 <input id="patient.gender"  type="text"  class="form-control input-md" th:value="*{patient?.gender}"/>
+                                               
+									            </div>
+                                            </div>
+                                            
+                                            <div class="form-group">
+                                                <label class="col-md-3" th:text="#{label.hao.district}">District</label>
+                                                <div class="col-md-9">
+                                                 <input id="patient.district"  name="patient.district" type="text"  class="form-control input-md" th:value="*{patient?.district}"/>
+                                               
+									            </div>
+									        </div>
+									        
+									        <div class="form-group">
+                                                <label class="col-md-3" th:text="#{label.hao.talluk}">Taluk</label>
+                                                <div class="col-md-9">
+                                                 <input id="patient.talluk"  name="patient.talluk" type="text"  class="form-control input-md" th:value="*{patient?.talluk}"/>
+									            </div>
+									         </div>
+									        
+                                            <div class="form-group">   
+                                                <label class="col-md-3" th:text="#{label.hao.village}">Village</label>
+                                                <div class="col-md-9">
+                                                  <input id="patient.village"  name="patient.village" type="text"  class="form-control input-md" th:value="*{patient?.village}"/>
+									            </div>
+                                            </div>
+                                            
+                                          
+                                            
+                                            <div class="form-group">   
+									            <label class="col-md-3" th:text="#{label.hao.benefRegNo}">Benef Reg No</label>
+                                                <div class="col-md-9">
+                                                <input id="patient.id"  name="patient.id" type="text" placeholder="Benef Reg No" class="form-control input-md" th:value="*{patient?.id}"/>
+                                                </div>
+                                            </div>
+                                             
+                                             <div class="form-group">   
+                                                <label class="col-md-3" th:text="#{label.hao.bplCard}">BPL card?</label>
+                                                <div class="lang-content">
+								                <label th:each="bplCard : ${yesOrNoMap}" th:for="${#ids.next('bplCard')}" class="col-md-4 control-label my-radioBtn">
+								                    <input type="radio" name="bplCard" th:field="*{bplCard}" th:text="#{${bplCard.value}}" th:value="${bplCard.key}"/>
+								                	<span class="checkmark"></span>
+								                </label>
+								                </div>
+                                             </div>
+                                                
+                                                <div class="form-group">   
+                                                <label class="col-md-9" th:text="#{label.hao.remarks}">Previous SkillSet Remarks</label>
+                                                <div class="col-md-12">
+                                                <textarea id="skillSet" name="skillSet" placeholder="Remarks" class="form-control input-md"></textarea>
+                                                </div>
+                                                </div>
+                                                
+                                                <hr>
+                                               <h3 class="field-title pad0" th:text="#{label.hao.advice}">Advice</h3>
+                                               
+                                                <div class="form-group">  
+                                                 <label class="col-md-3" th:text="#{label.hao.callFlow}">Call Flow</label>
+                                                 <div class="col-md-9">
+                                                 <input id="patient.callFlow"  name="patient.callFlow" type="text"  class="form-control input-md" th:value="*{callFlow}"/>
+                                                  </div>
+                                                 </div>
+                                                 
+                                                 <div class="form-group">  
+                                                 <label class="col-md-5" th:text="#{label.hao.lastAdvice}">Last Advice</label>
+                                                 </div>
+                                                 <div class="scroll-style scrollbar-inner">
+                                              <div class="form-group ">
+                                            <label class="col-md-3" th:text="#{label.hao.category}">Category:</label>
+                                             </div> 
+                                              <div class="form-group">
+                                            <label class="col-md-3" th:text="#{label.hao.subCategory}">Sub Category:</label>
+                                               </div> 
+                                             <div class="form-group">
+                                            <label class="col-md-3" th:text="#{label.hao.symptomCode}">Symptom Code:</label>
+                                               </div> 
+                                             <div class="form-group">
+                                            <label class="col-md-3" th:text="#{label.hao.diseaseSummary}">Disease Summary:</label>
+                                               </div> 
+                                               <div class="form-group">
+                                            <label class="col-md-3" th:text="#{label.hao.mainComplaint}">Main Complaint:</label>
+                                               </div> 
+                                               <div class="form-group">
+                                            <label class="col-md-3" th:text="#{label.hao.otherComplaints}">Other Complaint:</label>
+                                               </div> 
+                                               <div class="form-group">
+                                            <label class="col-md-3" th:text="#{label.hao.advicesGiven}">Advice Given:</label>
+                                               </div> 
+                                               </div>
+                                                
+                           <!-- Call Types -->   
+       <hr>                      					<div class="form-group">  
+                                                     <h3 class="field-title" th:text="#{label.hao.callType}">Call Type</h3>
+                                             		<label class="col-md-3 control-label" for="" th:text="#{label.hao.callType}">Call Type</label>
+	                                             	<div class="col-md-9">
+		                                                 <select name="callType" id="callType" th:field="${call.callType}"  class="form-control input-md" onchange="retrieveSubType();"><!--th:field="*{patient?.talluk}"   -->  
+												              <option value="">Call Type </option>
+												              <option th:each="callType : ${callTypeMap}" th:value="${callType.key}" th:text="${callType.value}"></option>
+											            </select>
+										            </div>
+									            </div>
+									            <div class="form-group"> 
+										             <label class="col-md-3 control-label" for="" th:text="#{label.hao.subType}">Sub Type</label>
+	                                                 <div id="subTypeDiv">
+		                                                 <div th:fragment="subTypeFragment" class="col-md-9">
+			                                                <select name="callSubType" id="callSubType" th:field="${call.callSubType}"  class="form-control input-md"><!--th:field="*{patient?.talluk}"   -->  
+												              	<option value="">Sub Type </option>
+												                <option th:each="subType : ${subTypeMap}" th:value="${subType.key}" th:text="${subType.value}"></option>
+												            </select>
+											            </div>
+	                                                </div>
+									            </div>
+									            <hr>
+									              <div class="form-group">   
+									              <h3 class="field-title"><i class="glyphicon glyphicon-paperclip"></i> Remarks</h3>
+                                                <label class="col-md-9" th:text="#{label.hao.inf}">Information provider Remarks</label>
+                                                <div class="col-md-12">
+                                                <textarea id="inf" name="inf" placeholder="Remarks" class="form-control input-md"></textarea>
+                                                </div>
+                                                </div>                                           
+                                            </div>
+                                        </fieldset>
+                                    </form>
+                                    
+            
+                               
+                               
+                               <!-- FoodSafety Modal -->
+                             <!--      	<div class="modal fade" id="foodSafetyModal" tabindex="-1" role="dialog" aria-labelledby="foodSafetyModalLabel">
+                               	 <div class="modal-dialog modal-800" role="document">
+                               	  <div class="modal-content">
+                               	  
+                               	   <div class="modal-header">
+                               	   
+                               	   <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+									        <h4 class="modal-title" id="foodSafetyModalLabel">Food Safety</h4>
+                               	   
+                               	   
+                               	  </div>
+                               	    <div class="modal-body">
+                               	     <form id="foodSafetyForm" class="form-horizontal"  th:action="@{/hao/foodSafety}" th:object="${call}" method="post">
+            							<fieldset>
+											<div class="col-md-12 container">
+					 <hr size="60">
+                    							<div class="form-group">
+                          							<label class="col-md-3 control-label" for="language" th:text="#{label.hao.language}">Language</label>
+                            							<label th:each="language : ${languageTypes}" th:for="${#ids.next('language')}" class="col-md-3 control-label">
+															<input type="radio" name="language" th:field="*{language}"  th:text="#{${language.value}}" th:value="${language.key}"/>
+														</label>
+								                
+                        						</div>
+                        
+         <hr>             <div class="form-group">
+                          <label class="col-md-1 control-label" for="symptoms">Symptoms </label>
+                          </div> 
+                          
+                          <div class="form-group">
+                                 <label class="col-md-2 control-label" for="diarrhea">Diarrhea</label>
+                                    	<div class="col-md-7">
+                                        <select name="foodSafety.diarrhea" id="diarrhea" th:field="${foodSafety.diarrhea}"  class="form-control input-md">      
+									    	<option value=""> </option>
+									        <option th:each="diarrhea : ${diarrheaMap}" th:value="${diarrhea.key}" th:text="${diarrhea.value}"></option>
+									    </select>	
+                                        </div>
+                          </div>
+                          
+                           <div class="form-group">
+                                 <label class="col-md-2 control-label" for="vomiting">Vomiting</label>
+                                    	<div class="col-md-7">
+                                        <select name="foodSafety.vomiting" id="vomiting" th:field="${foodSafety.vomiting}"  class="form-control input-md">
+									    	<option value=""> </option>
+									        <option th:each="vomiting : ${vomitingMap}" th:value="${vomiting.key}" th:text="${vomiting.value}"></option>
+									    </select>	
+                                        </div>
+                          </div>
+                          
+         
+                           <div class="form-group">
+                                  <label class="col-md-2 control-label" for="abdominalPain">Abdominal Pain</label>
+                                    	<div class="col-md-7">
+                                        <select name="foodSafety.abdominalPain" id="abdominalPain" th:field="${foodSafety.abdominalPain}"  class="form-control input-md">   
+									    	<option value=""> </option>
+									        <option th:each="abdominalPain : ${abdominalPainMap}" th:value="${abdominalPain.key}" th:text="${abdominalPain.value}"></option>
+									    </select>	
+                                        </div>
+                          </div>
+                          
+                         <div class="form-group">
+                                  <label class="col-md-2 control-label" for="chillsRigors">Chills/Rigors</label>
+                                    	<div class="col-md-7">
+                                        <select name="foodSafety.chillsRigors" id="chillsRigors" th:field="${foodSafety.chillsRigors}"  class="form-control input-md">     
+									    	<option value=""> </option>
+									        <option th:each="chillsRigors : ${chillsRigorsMap}" th:value="${chillsRigors.key}" th:text="${chillsRigors.value}"></option>
+									    </select>	
+                                        </div>
+						  </div>
+                        
+                        
+                         <div class="form-group">
+                                  <label class="col-md-2 control-label" for="giddiness">Giddiness</label>
+                                    	<div class="col-md-7">
+                                        <select name="foodSafety.giddiness" id="giddiness" th:field="${foodSafety.giddiness}"  class="form-control input-md">
+									        <option th:each="giddiness : ${giddinessMap}" th:value="${giddiness.key}" th:text="${giddiness.value}"></option>
+									    </select>	
+                                        </div>
+						  </div>
+						  
+						   <div class="form-group">
+                                  <label class="col-md-2 control-label" for="deHydration">De-Hydration</label>
+                                    	<div class="col-md-7">
+                                        <select name="foodSafety.deHydration" id="deHydration" th:field="${foodSafety.deHydration}"  class="form-control input-md">      
+									    	<option value=""> </option>
+									        <option th:each="deHydration : ${deHydrationMap}" th:value="${deHydration.key}" th:text="${deHydration.value}"></option>
+									    </select>	
+                                        </div>
+						  </div>
+						  
+						   <div class="form-group">
+                                  <label class="col-md-2 control-label" for="rashes">Rashes</label>
+                                    	<div class="col-md-7">
+                                        <select name="foodSafety.rashes" id="rashes" th:field="${foodSafety.rashes}"  class="form-control input-md">       
+									    	<option value=""> </option>
+									        <option th:each="rashes : ${rashesMap}" th:value="${rashes.key}" th:text="${rashes.value}"></option>
+									    </select>	
+                                        </div>
+						  </div>
+			
+<hr>                      <div class="form-group">
+                                  <label class="col-md-2 control-label" for="questions">Questions To Be Asked </label>
+                          </div>
+                          
+                          <div class="form-group">
+                                  <label class="col-md-2 control-label" for="symptomStartDate">From When:</label>
+                                    	<div class="col-md-7">
+                                			<input id="symptomStartDate" name="symptomStartDate" type="text" class="form-control input-md" />
+                                     	</div>   	
+                          </div> 
+                          
+                          <div class="form-group">
+                                  <label class="col-md-2 control-label" for="historyOfDiet">History Of Diet</label>
+                                    	<div class="col-md-7">
+                                			<input id="historyOfDiet" name="historyOfDiet" type="text" class="form-control input-md" />
+                                     	</div>   	
+                          </div> 
+                          
+                          
+                           
+                           <div class="form-group">
+                                  <label class="col-md-2 control-label" for="consumedFood">Whether Consumed Food Or Not</label>
+                                    	<div class="col-md-7">
+                                		<select name="foodSafety.consumedFood" id="consumedFood" th:field="${foodSafety.consumedFood}"  class="form-control input-md">   
+									    	<option value=""> </option>
+									        <option th:each="consumed : ${consumedMap}" th:value="${consumed.key}" th:text="${consumed.value}"></option>
+									    </select>	
+                                     	</div>   	
+                          </div>
+                          
+                          
+                           <div class="form-group">
+                                  <label class="col-md-2 control-label" for="foodType">What Type Of Food:</label>
+                                    	<div class="col-md-7">
+                                			<input id="foodType" name="foodType" type="text" class="form-control input-md" />
+                                        </div>
+                           </div> 
+                           
+                           <div class="form-group">
+                                  <label class="col-md-2 control-label" for="foodConsumePlace">From Where The Food Consumed</label>
+                                    	<div class="col-md-7">
+                                			<input id="foodConsumePlace" name="foodConsumePlace" type="text" class="form-control input-md" />
+                                        </div>   
+                           </div>
+                           
+                            <div class="form-group">
+                                  <label class="col-md-2 control-label" for="associatedSympt">Associated Symptoms:</label>
+                                    	<div class="col-md-7">
+                                			<input id="associatedSympt" name="associatedSympt" type="text" class="form-control input-md" />
+                                        </div>   
+                           </div>
+                           
+                           			
+<hr>                      <div class="form-group">
+                                  <label class="col-md-2 control-label" for="complaints">Complaint </label>
+                          </div>
+                          
+                           <div class="form-group">
+                                  <label class="col-md-2 control-label" for="complaintType">Complaint Type</label>
+                                  <div class="col-md-7">
+                                		<select name="foodSafety.complaintType" id="complaintType" th:field="${foodSafety.complaintType}"  class="form-control input-md">        
+									    	<option value=""> </option>
+									        <option th:each="type : ${typeMap}" th:value="${type.key}" th:text="${type.value}"></option>
+									    </select>	
+                                     	</div>   
+                           </div>
+                           
+                           <div class="form-group">
+                                  <label class="col-md-2 control-label" for="dateOfImpact">Date Of Impact</label>
+                                  <div class="col-md-7">
+                                			<input id="dateOfImpact" name="dateOfImpact" type="text" class="form-control input-md" />
+                                        </div>  
+                           </div>
+                           
+                           <div class="form-group">
+                           		<label class="col-md-2 control-label" for="district">District</label>
+                                  	<div class="col-md-7">
+                    	           		<select name="patient.district" id="district" th:field="${call.patient.district}" class="form-control input-md" onchange="retrieveTalluks();">  
+									    	<option value="">Select District</option>
+									        <option th:each="district : ${districtMap}" th:value="${district.key}" th:text="${district.value}"></option>
+									    </select>
+                                 	</div>
+                           </div>
+                           
+                           <div class="form-group">
+                           		<label class="col-md-2 control-label" for="talluk">Taluk</label>
+		                         <input id="callDateTime" type="text" placeholder="Call Date" class="form-control input-md" th:value="${callTime}" readonly="readonly"/>                                
+						              <div class="col-md-7">
+						                <div id = "tallukDiv">
+                                        	<div th:fragment="tallukFragment" >
+                                          		<select name="patient.talluk" id="talluk" th:field="${call.patient.talluk}"  class="form-control input-md" onchange="retrieveVillages()">   
+									             	<option value="">Select Taluka</option>
+									             	<option th:each="talluk : ${tallukMap}" th:value="${talluk.key}" th:text="${talluk.value}"></option>
+									            </select>
+									        </div>
+                                        </div>	
+                                  </div>
+                           </div>
+                           
+                           <div class="form-group">
+                            	<label class="col-md-2 control-label" for="village">City/Village</label>
+                             		<div class="col-md-7">
+                                    	<div id = "villageDiv">
+                                       		<div th:fragment="villageFragment">
+                                          		<select name="patient.village" id="village" th:field="${call.patient.village}" class="form-control input-md">  
+									                <option value="">Select Village</option>
+									                <option th:each="village : ${villageMap}" th:value="${village.key}" th:text="${village.value}"></option>
+									            </select>
+									        </div>
+									    </div>
+                                   </div>
+                           </div>
+                           
+                           <div class="form-group">
+                                  <label class="col-md-2 control-label" for="place">Landmark/Place</label>
+                                  <div class="col-md-7">
+                    	                <textarea id="place" name="place" class="form-control input-md" ></textarea>
+                  	               </div>
+                           </div>
+                           
+                           <div class="form-group">
+                                  <label class="col-md-2 control-label" for="explanation">Explanation</label>
+                                  <div class="col-md-7">
+                    	                <textarea id="explanation" name="explanation" class="form-control input-md" ></textarea>
+                  	              </div>
+                           </div>
+                           <div class="modal-footer">
+                            <input type="button" onclick="alert('Successfully saved!')" value = "Save" class="btn btn-primary"/>
+                           <button type="button" onclick="foodSave()" id="save" name="save" value = "save" class="btn btn-primary">Save</button>
+								<button type="button" id="close" class="btn btn-default" data-dismiss="modal">Close</button>
+						   </div>
+						    
+                     <hr size=60>
+                     </div>
+				<hr size=60>
+				</fieldset>
+				</form>
+           	   </div>
+               </div>
+		</div>
+	</div> -->
+               <!-- Eye Bank Modal -->
+                     <!--           	<div class="modal fade" id="eyeBankModal" tabindex="-1" role="dialog" aria-labelledby="eyeBankModalLabel">
+                               	 <div class="modal-dialog modal-700" role="document">
+                               	  <div class="modal-content">
+                               	   <div class="modal-header">
+                               	   <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+									        <h4 class="modal-title" id="eyeBankModalLabel">Eye Bank</h4>
+							      </div>  
+							      
+							         <div class="modal-body">
+                               	    <form class="form-horizontal" action="#" th:action="@{/hao/eyeBank}" th:object="${eyeBank}" method="post">
+                                        <fieldset>
+                                        
+                                        <div class="form-group">
+                                                <label class="col-md-2">State</label>
+                                                <div class="col-md-4">
+                                                <select name="patient.state" id="state" th:field="${call.patient.state}" class="form-control input-md">th:field="*{patient?.district}"    
+									                <option value="">State name</option>
+									                <option th:each="state : ${stateMap}" th:value="${state.key}" th:text="${state.value}"></option>
+									            </select>
+									            </div>
+									      
+                                                <label class="col-md-2">District</label>
+                                                <div class="col-md-4">
+                                                <select name="patient.district" id="district" th:field="${call.patient.district}" class="form-control input-md">th:field="*{patient?.district}"    
+									                <option value="">District name</option>
+									                <option th:each="district : ${districtMap}" th:value="${district.key}" th:text="${district.value}"></option>
+									            </select>
+									            </div>
+									        </div>
+									        
+									        
+									         <div class="form-group">
+                                                <label class="col-md-2">Taluk</label>
+                                                <div class="col-md-4">
+                                                <select name="patient.talluk" id="talluk" th:field="${call.patient.talluk}"  class="form-control input-md">th:field="*{patient?.talluk}"    
+									                <option value="">Taluk name</option>
+									                <option th:each="talluk : ${tallukMap}" th:value="${talluk.key}" th:text="${talluk.value}"></option>
+									            </select>
+									            </div>
+									            
+									            <div class="col-md-2">
+                                                     <button  type="button" id="search" name="search" class="btn btn-primary" >
+                                                  Search
+                                                    </button>
+                                                </div>
+									            
+									       </div>
+									       
+									         <hr>
+									           <div class="form-group">
+									        <label class="col-md-6">Eye Bank Details</label>
+									         </div>
+									          <hr>
+									         <div class="row table-responsive table-bordered bg-info">
+									<table id="eyeBankTable" class="table">
+										<thead>
+											<tr>
+												<th>SlNo</th>
+												<th>Eye Bank Name</th>
+												<th>Eye Bank Address</th>
+												<th>Contact No</th>
+												<th>Eye Bank Incharge</th>
+												
+											</tr>
+										</thead>
+                                        
+                                          </table>
+                                          </div> 
+                                          
+                                           <div class="modal-footer">
+									        <button type="button" id="eyeBankClose" class="btn btn-default" data-dismiss="modal">Close</button>
+									        <input type="button" onclick="alert('Successfully sent!')" value = "SendSms" class="btn btn-primary"/>
+									      </div> 
+									          
+									        
+							      </fieldset>
+							      </form>
+							                    
+                               </div>
+                               </div>
+                                </div>
+                               </div>  -->
+                              <!-- Directories Modal -->
+                            <!--    	<div class="modal fade" id="directoriesModal" tabindex="-1" role="dialog" aria-labelledby="directoriesModalLabel">
+                               	 <div class="modal-dialog modal-900" role="document">
+                               	  <div class="modal-content">
+                               	   <div class="modal-header">
+                               	   <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+									        <h4 class="modal-title" id="directoriesModalLabel">Directories</h4>
+							      </div>                 
+                               </div>
+                               </div>
+                                </div> -->
+                                
+                             <!-- Feedback Modal -->
+                               	<div class="modal fade" id="feedbackModal" tabindex="-1" role="dialog" aria-labelledby="feedbackModalLabel">
+                               	 <div class="modal-dialog modal-700" role="document">
+                               	  <div class="modal-content">
+                               	   <div class="modal-header">
+                               	   <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="far fa-times-circle"></i></button>
+									        <h4 class="modal-title" id="feedbackModalLabel"><i class="far fa-comment-alt"></i> Feedback</h4>
+							      </div>
+                               	    <div class="modal-body">
+                               	      <form name="feedbackForm" id="feedbackForm" class="form-horizontal" th:action="@{/hao/feedback}" th:object="${feedback}" method="post">
+                               	   <fieldset>
+                               	 <h3 class="field-title pad0">Call Details</h3>
+                               	   <div class="form-group">
+                               	   <label class="col-md-2 control-label" for="feedbackCallId">Caller ID</label>
+                               	   <div class="col-md-4">
+                                                   <input id="feedbackCallId" name="callId" type="text" placeholder="Call Id" class="form-control input-md" th:value="*{callId}" readonly="readonly"/>
+                                                </div> 
+                                       <label class="col-md-2 control-label" for="feedbackCallDate">Call Date</label>          
+                                         <div class="col-md-4">        
+                               	          <input id="feedbackCallDate" name="callDateTime" type="text" placeholder="Call Date" class="form-control input-md" th:value="*{callDateTime}" readonly="readonly"/>
+                               	         </div>
+                               	     </div>
+                               	     
+                               	     <div class="form-group">
+                                                <label class="col-md-2 control-label" for="feedbackCallerName">Name</label>
+                                                <div class="col-md-4">
+                                                <input id="feedbackCallerName" name="callerName" type="text" placeholder="Name" class="form-control input-md" th:value="*{callerName}"/>
+                                     </div>
+                               	         
+                               	         <label class="col-md-2 control-label" for="feedbackCallerNumber">Caller Phone</label>
+                                                <div class="col-md-4">
+                                            <input id="feedbackCallerNumber"  name="callerNumber" type="text" placeholder="Phone" class="form-control input-md" th:value="*{callerNumber}" readonly="readonly"/>
+                                                
+                                                </div> 
+                                     </div>
+                               	     <div class="form-group">
+                                        		<label class="col-md-3" >Call Feedback</label>
+                                        
+                                          		<div class="col-md-10">
+                                                <textarea  rows="5" cols="15" id="callFeedback"  name="callFeedback" placeholder="Call Feedback" class="form-control input-md"></textarea>
+									            </div>
+                                     </div>
+                               	      
+                               	      <div class="form-group">
+           								 <label class="col-md-3 control-label" for="gender">Feedback Type</label>
+                                                <div class="col-md-4">
+                                              <select name="feedback.feedbackType" id="feedbackType" th:field="${feedback.feedbackType}"  class="form-control input-md"> <!--th:field="*{patient?.gender}"   -->     
+									            <option value="">Select Feedback Type</option>
+									                <option th:each="feedback : ${feedbackTypes}" th:value="${feedback.key}" th:text="${feedback.value}"></option>
+									            </select> 
+								     			 </div>      
+           								</div>
+           								<div class="modal-footer">
+									        <button type="button" id="feedbackClose" class="btn btn-default" data-dismiss="modal">Close</button>
+									        <button type="button" onclick="feedbackSave()" id="saveChanges" name="saveChanges" value = "saveChanges" class="btn btn-primary">Save changes</button>
+									    </div>
+                               	  </fieldset>
+                               	  </form>
+                               	   </div>
+                               	   </div>
+                                </div>
+                               </div>
+                               
+                                 <!-- Complaint Modal -->
+                                  
+								 	<div class="modal fade" id="complaintModal" tabindex="-1" role="dialog" aria-labelledby="complaintModalLabel">
+									  <div class="modal-dialog modal-700" role="document">
+									    <div class="modal-content">
+									      <div class="modal-header">
+									        <button type="button" class="close" data-dismiss="complaint" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+									        <h4 class="modal-title" id="complaintModalLabel">Complaint</h4>
+									      </div>
+									      <div class="modal-body">
+									      
+									      
+									              
+                                        <form name="complaintForm" id="complaintForm" class="form-horizontal" th:action="@{/hao/complaint}" th:object="${complaint}" method="post">
+                                        <fieldset>
+                                        <div class="form-group">
+                                        <label class="col-md-6" >Call Details</label>
+                                           </div>
+										<div class="form-group">
+                                                <label class="col-md-2 control-label" for="complaintCallId">Caller ID</label>
+                                                <div class="col-md-4">
+                                                  <input id="complaintCallId" name="callId" type="text" placeholder="Call Id" class="form-control input-md" th:value="*{callId}" readonly="readonly"/>
+                                                </div> 
+                                                 <label class="col-md-2 control-label" for="complaintCallDate">Call Date</label>
+                                                <div class="col-md-4">
+                                                    <input id="complaintCallDate" name="callDateTime" type="text" placeholder="Call Date" class="form-control input-md" th:value="*{callDateTime}" readonly="readonly"/>
+                                                </div> 
+                                                </div>
+                                                
+                                                <div class="form-group">
+                                                 <label class="col-md-2 control-label" for="complaintCallerName">Name</label>
+                                                <div class="col-md-4">
+                                                    <input id="complaintCallerName" name="callerName" type="text" placeholder="Name" class="form-control input-md" th:value="*{callerName}"/>
+                                                </div> 
+                                                
+                                                 <label class="col-md-2 control-label" for="complaintCallerNumber">Caller Phone</label>
+                                                <div class="col-md-4">
+                                                <input id="complaintCallerNumber"  name="callerNumber" type="text" placeholder="Phone" class="form-control input-md" th:value="*{callerNumber}" readonly="readonly"/>
+                                                </div> 
+                                                
+                                             </div>
+                              
+											 <div class="form-group">
+                                        		<label class="col-md-3" >Call Complaint</label>
+                                          		<div class="col-md-10">
+                                                <textarea  rows="5" cols="15" id="callComplaint"  name="callComplaint" placeholder="Call Complaint" class="form-control input-md"></textarea>
+									            </div>
+                                           </div>
+           								 <div class="form-group">
+           								 <label class="col-md-3 control-label" for="gender">Complaint Type</label>
+                                                <div class="col-md-4">
+                                                <select name="complaint.complaintType" id="complaintType" th:field="${complaint.complaintType}"  class="form-control input-md"> <!--th:field="*{patient?.gender}"   -->     
+									                <option value="">Select Complaint Type</option>
+									                <option th:each="complaint : ${complaintTypes}" th:value="${complaint.key}" th:text="${complaint.value}"></option>
+									            </select>
+								          </div>      
+           										 </div>
+									      
+									      <div class="modal-footer">
+									        <button type="button" id="complaintClose" class="btn btn-default" data-dismiss="modal">Close</button>
+									        <button type="button" onclick="complaintSave()" id="saveChanges" name="saveChanges" value = "saveChanges" class="btn btn-primary">Save changes</button>
+									      </div>
+									      
+									       </fieldset>
+                                    		</form>
+                                    		</div>
+									    </div>
+									  </div>
+									</div>
+									
+									
+                              <!-- Beneficiary Modal -->
+                               	<!-- <div class="modal fade" id="beneficiaryModal" tabindex="-1" role="dialog" aria-labelledby="beneficiaryModalLabel">
+                               	 <div class="modal-dialog modal-900" role="document">
+                               	  <div class="modal-content">
+                               	   <div class="modal-header">
+                               	   	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+										<h4 class="modal-title" id="beneficiaryModalLabel">Beneficiary</h4>
+							      		<div class="modal-body">
+							      			<form name="beneficiaryForm" id="beneficiaryForm" class="form-horizontal" th:action="@{/hao/beneficiary}" th:object="${beneficiary}" method="post">
+                                  				<fieldset>
+							      					<div class="form-group">
+									        			<label class="col-md-5">No.of Records:</label>
+									        			<label class="col-md-5">Beneficiary Registration Number:</label>
+									        			<div class="col-md-1">
+									        			 <input id="patient.id"  name="id" type="text" class="form-control input-md" th:value="*{patient?.id}" />
+									         		</div>
+									         		</div>
+									          <hr>
+									         <div class="row table-responsive table-bordered bg-info">
+												<table id="beneficiaryTable" class="table">
+													<thead>
+														<tr>
+															<th>Beneficial Registration Number</th>
+															<th>Beneficial Name</th>
+															<th>Age</th>
+															<th>Gender</th>
+															<th>Category</th>
+															<th>Sub Category Name</th>
+															<th>Desease Summary</th>
+															<th>Other Complaint</th>
+															<th>Other Advice</th>
+														</tr>
+													</thead>
+                                          		</table>
+                                          	</div>  
+                                           </fieldset>
+                                    		</form>    
+							      </div> 
+							      </div>                 
+                               </div>
+                               </div>
+                                </div> -->
+                                
+                                
+                             <!-- NKSHP Modal -->
+                            <!--      	<div class="modal fade" id="nkshpModal" tabindex="-1" role="dialog" aria-labelledby="nkshpModalLabel">
+                               	 <div class="modal-dialog modal-900" role="document">
+                               	  <div class="modal-content">
+                               	   <div class="modal-header">
+                               	   	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+										<h4 class="modal-title" id="nkshpModalLabel">NKSHP</h4>
+                               	  	</div>
+                               	    <div class="modal-body">
+                               	    	<form class="form-horizontal" action="#" th:action="@{/nkshp/nkshppage}" th:object="${call}" method="post">
+                                        	<fieldset>
+                                    			<div class="form-group">
+                          							<label class="col-md-2 control-label" for="language" th:text="#{label.hao.language}">Language</label>
+                            							<label th:each="language : ${languageTypes}" th:for="${#ids.next('language')}" class="col-md-3 control-label">
+															<input type="radio" name="language" th:field="*{language}"  th:text="#{${language.value}}" th:value="${language.key}"/>
+														</label>
+                        						</div>
+								  <hr>
+								  
+								<label class="col-md-2 control-label" for="leprosy">NLEP-Leprosy</label>
+								 <label class="col-md-4 control-label" for="tuburculosis">RNTCP-Tuburculosis</label> 
+								  <label class="col-md-4 control-label" for="immunization">Immunization</label> 
+                                	  <div class="form-group">
+                           						<div class="col-md-4">
+                           						  <div class="form-group">
+                           						  <label class="col-md-3" ></label>
+                           						  
+                           						<button id="faq" name="faq" class="btn-link">
+                                                        FAQ 
+                                                    </button>
+                           						
+                           						</div>
+                           						<div class="form-group">
+                           						 <label class="col-md-3" ></label>
+                           						<button id="hospCont" name="hospCont" class="btn-link">
+                                                       Hospital Contact List
+                                                    </button>
+                           						</div>
+                           						
+                           						<div class="form-group">
+                           						 <label class="col-md-3" ></label>
+                           						<button id="scheme" name="scheme" class="btn-link">
+                                                     Scheme -If Any
+                                                    </button>
+                           						</div>
+                           						</div>
+                           						
+                           						<div class="col-md-4">
+                           						<div class="form-group">
+                           						  <label class="col-md-1" ></label>
+                           						<button id="faq" name="faq" class="btn-link">
+                                                        FAQ 
+                                                    </button>
+                           						</div>
+                           						
+                           						<div class="form-group">
+                           						 <label class="col-md-1" ></label>
+                           						<button id="hospCont" name="hospCont" class="btn-link">
+                                                       Hospital Contact List
+                                                    </button>
+                           						</div>
+                           						
+                           						<div class="form-group">
+                           						 <label class="col-md-1" ></label>
+                           						<button id="scheme" name="scheme" class="btn-link">
+                                                     Scheme -If Any
+                                                    </button>
+                           						</div>
+                           						</div>
+                           						
+                           						<div class="col-md-4">
+                           						<div class="form-group">
+                           						  <label class="col-md-2" ></label>
+                           						<button id="faq" name="faq" class="btn-link">
+                                                        FAQ 
+                                                    </button>
+                           						</div>
+                           						
+                           						<div class="form-group">
+                           						 <label class="col-md-2" ></label>
+                           						<button id="hospCont" name="hospCont" class="btn-link">
+                                                       Hospital Contact List
+                                                    </button>
+                           						</div>
+                           						
+                           						<div class="form-group">
+                           						 <label class="col-md-2" ></label>
+                           						<button id="scheme" name="scheme" class="btn-link">
+                                                     Scheme -If Any
+                                                    </button>
+                           						</div>
+                           						</div>
+                           						</div> 
+                                                
+                                                <hr>
+                                  <label class="col-md-2 control-label" for="indradhanush">Indradhanush</label>
+								 	<label class="col-md-4 control-label" for="rbsk">RBSK Programme Scheme</label> 
+								  		<label class="col-md-4 control-label" for="yojana">Mukyamantri Swantvan Yojane</label> 
+                                                
+                                               <div class="form-group">
+                           						<div class="col-md-4">
+                           						  <div class="form-group">
+                           						  <label class="col-md-3" ></label>
+                           							<button id="faq" name="faq" class="btn-link">
+                                                        FAQ 
+                                                    </button>
+                           						</div>
+                           						
+                           						<div class="form-group">
+                           						 <label class="col-md-3" ></label>
+                           							<button id="hospCont" name="hospCont" class="btn-link">
+                                                       Hospital Contact List
+                                                	</button>
+                           						</div>
+                           						<div class="form-group">
+                           						 <label class="col-md-3" ></label>
+                           							<button id="scheme" name="scheme" class="btn-link">
+                                                      Scheme -If Any
+                                                    </button>
+                           						</div>
+                           						</div>
+                           						
+                           						<div class="col-md-4">
+                           						<div class="form-group">
+                           						 <label class="col-md-1" ></label>
+                           							<button id="scheme" name="scheme" class="btn-link">
+                                                     Scheme -If Any
+                                                 	</button>
+                           						</div>
+                           						</div>
+                           					  </div> 
+                           					  
+                            		 <div class="form-group">
+                           				<label class="col-md-5" ></label>
+                           					<div class="modal-footer">
+									        	<button type="button" id="nkshpExit" class="btn btn-primary" data-dismiss="modal">Exit</button>
+									       </div>
+          							    </div> 
+                                          <hr>  
+										</fieldset>
+                                    </form>
+                               	 </div>
+								</div>            
+                     </div>           
+                      </div>        -->
+                      
+                               
+				<!--  view modal starts -->     
+                      <!-- Modal -->
+									<div class="modal fade" id="fileViewModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+									  <div class="modal-dialog modal-900" role="document">
+									    <div class="modal-content">
+									      <div class="modal-header">
+									        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+									        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+									      </div>
+									      <div class="modal-body">
+									      <!-- 
+									        <object data="/assets/Display setting.pdf" type="application/pdf" width="100%" height="800px"> 
+											   <p>It appears you don't have a PDF plugin for this browser.
+											       No biggie... you can <a href="/assets/Display setting.pdf" type="application/pdf">click here to
+											       download the PDF file.</a>
+											  </p>  
+											</object>
+											
+												<iframe src="/assets/Display setting.pdf" width="100%" height="400px"></iframe>
+											 -->
+											<div class="col-md-4 container" id="fileDiv">	
+												<div>
+												 <!-- <form> -->
+										            <div class="form-group">
+										            	<div class="input-group">
+														  <div class="form-group has-feedback has-clear">
+														    <input type="text" class="form-control" id="input-search" placeholder="Type to search...">
+														    <span class="form-control-clear glyphicon glyphicon-remove form-control-feedback hidden" id="btn-clear-search"></span>
+														  </div>
+														  <span class="input-group-btn">
+														    <button type="button" class="btn btn-primary" id="btn-search">Search</button>
+														  </span>
+														</div>
+										            </div>
+										            
+          										<!-- </form> -->
+												</div>
+												<div id="treeview-checkable1"></div>
+											</div>	
+											<div class="col-md-8 container" id="fileDiv">
+											    <div id="checkable-output1" style="display:none">
+											    	<div class="p-3 mb-2 desc-content">Symptoms</div>
+											    	<div id="checkable-output1-symptoms" >
+											    	</div>
+											    	<div class="p-3 mb-2 desc-content"> Action</div>
+											    	<div id="checkable-output1-action" >
+											    	</div>
+											    	<div class="p-3 mb-2 desc-content">Do's and Don'ts</div>
+											    	<div id="checkable-output1-dosndonts" >
+											    	</div>
+											    	<div class="p-3 mb-2 desc-content">Information</div>
+											    	<div id="checkable-output1-information" >
+											    	</div>
+											    </div>	
+											    <div id="fileContent" >
+											    </div>
+											</div>	
+										
+											
+									      </div>
+									      <div class="modal-footer">
+									        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+									        
+									      </div>
+									    </div>
+									  </div>
+									</div>  
+                                 <!-- File view modal ends -->  
+                                 
+                                  
+                                <!-- Yes Modal --> 
+							 
+                               	<div class="modal fade" id="yesModal" tabindex="-1" role="dialog" aria-labelledby="yesModalLabel">
+                               	 <div class="modal-dialog modal-700" role="document">
+                               	  <div class="modal-content">
+                               	   <div class="modal-header">
+                               	   <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+									        <h4 class="modal-title" id="yesModalLabel">Call Handled</h4>
+							      </div>
+                               	    <div class="modal-body">
+                               	      <form name="yesForm" id="yesForm" class="form-horizontal" >
+                               	   <fieldset>
+                               	 
+                               	   <div class="form-group">
+                               	   <label class="col-md-2 control-label" for="agentId">Agent ID</label>
+                               	   <div class="col-md-4">
+                                      <input id="agentId" name="agentId" type="text" placeholder= " " class="form-control input-md" />
+                                   </div> 
+                            	   </div>
+                               	     
+                               	      <div class="form-group">
+                               	         <label class="col-md-2 control-label" for="reason1">Reason</label>
+                               	       	<div class="col-md-4">
+                               	        <select name="patient.reason1" id="reason1" th:field="${call.patient.reason1}"  class="form-control input-md"> <!--th:field="*{patient?.reason1}"   -->     
+									            <option value="">Select Reason</option>
+									                <option th:each="reason1 : ${reason1Map}" th:value="${reason1.key}" th:text="${reason1.value}"></option>
+									    </select> 
+                               	      </div>
+                                      </div>
+                               	      
+                               	       <div class="form-group">
+                                        <label class="col-md-2 control-label" >Remarks</label>
+                                         <div class="col-md-4">
+                                         	<textarea  id="remarks" name="remarks" placeholder=" " class="form-control input-md"></textarea>
+									     </div>
+                                       </div>
+                           
+           							 	<div class="modal-footer">
+									        <button type="button" class="btn btn-default" data-dismiss="modal">Save and Close</button>
+									        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+							         	</div>
+                               	  </fieldset>
+                               	  </form>
+                               	   </div>
+                               	   </div>
+                                </div>
+                               </div>
+                                 
+                                 
+                                   
+    </div>	
+    <th:block layout:fragment="script">       
+    	<script th:src="@{'/assets/bootstrap/js/bootstrap-treeview.js'}"></script>
+  	<script type="text/javascript">
+  	
+  	 $(document).ready(function () {
+   		$('input:radio[name="language"]').change(function () {
+              var selectedOption = $(this).val();
+              if (selectedOption != '') {
+             	 $('#haoagentForm').attr('action', '/hao/haoagentLanguageChange?lang='+selectedOption);
+             	 $('#haoagentForm').submit();
+             	 
+              }
+          });
+      });
+  	 
+  	
+	function retrieveSymptoms() {
+  	  	var url = '/hao/symptomsTree';
+  	  	var data = {}
+  	  	data["symptoms"] = $("#symptoms").val();
+  		var token = $('#_csrf').attr('content');
+		var header = $('#_csrf_header').attr('content');
+		
+		var e = document.getElementById("symptoms");
+		var optionSelIndex = e.options[e.selectedIndex].value;
+		var optionSelectedText = e.options[e.selectedIndex].text;
+		if(optionSelIndex == 0)
+			{
+			alert("!!Please select the symptom first!!");
+			}
+		$.ajax({
+		    type: "POST",
+		    url: url,
+		    data: data,
+		    beforeSend: function (xhr) {
+		        xhr.setRequestHeader(header, token);
+		    },
+		    success: function (data, textStatus, jqXHR) {
+		    	loadSymptomsTree(data);
+		    },
+		    error: function (request, status, error) {
+		        alert(status);
+		    }
+		});
+	}
+  	
+	function retrieveAllSymptoms() {
+  	  	var url = '/hao/symptomsTreeAll';
+		var token = $('#_csrf').attr('content');
+		var header = $('#_csrf_header').attr('content');
+
+		$.ajax({
+		    type: "POST",
+		    url: url,
+		    beforeSend: function (xhr) {
+		        xhr.setRequestHeader(header, token);
+		    },
+		    success: function (data, textStatus, jqXHR) {
+		    	loadAllSymptomsTree(data);
+		    	$("#fileViewModal").modal();
+		    },
+		    error: function (request, status, error) {
+		        alert(status);
+		    }
+		});
+  	}
+	
+	function retrieveAllDiseaseInfo() {
+  	  	var url = '/hao/allDiseaseInfo';
+		var token = $('#_csrf').attr('content');
+		var header = $('#_csrf_header').attr('content');
+
+		$.ajax({
+		    type: "POST",
+		    url: url,
+		    beforeSend: function (xhr) {
+		        xhr.setRequestHeader(header, token);
+		    },
+		    success: function (data, textStatus, jqXHR) {
+		    	loadAllSymptomsTree(data);
+		    	$("#fileViewModal").modal();
+		    	$("#diseaseSummaryProvided").val("Through All Summary List - ");
+		    },
+		    error: function (request, status, error) {
+		        alert(status);
+		    }
+		});
+  	}
+	
+	function retrieveDiseaseInfo(node) {
+	  	  	var url = '/hao/diseaseInfo';
+			var token = $('#_csrf').attr('content');
+			var header = $('#_csrf_header').attr('content');
+			var data = JSON.stringify(node);
+
+			$.ajax({
+			    type: "POST",
+			    data: data,
+			    contentType: "application/json; charset=utf-8",
+                dataType: "json",
+			    url: url,
+			    beforeSend: function (xhr) {
+			        xhr.setRequestHeader(header, token);
+			    },
+			    success: function (data, textStatus, jqXHR) {
+			    	loadAllSymptomsTree(data);
+			    	$("#fileViewModal").modal();
+			    	$("#diseaseSummaryProvided").val("Through Summary List - ");
+			    },
+			    error: function (request, status, error) {
+			        alert(status);
+			    }
+			});
+	  	}
+  	
+	function feedbackSave(){
+  		var url = '/hao/feedback';
+ 		 var form = $('#feedbackForm');
+ 		var token = $('#_csrf').attr('content');
+		var header = $('#_csrf_header').attr('content');
+ 		   $.ajax({
+ 			    type: "POST",
+ 			    url: url,
+ 			    data: $('#feedbackForm').serialize(),
+ 			    beforeSend: function (xhr) {
+ 			        xhr.setRequestHeader(header, token);
+ 			    },
+ 			    success: function (data, textStatus, jqXHR) {
+ 			    	alert("Feedback saved Successfully");
+ 			    	$('#feedbackModal').modal('toggle');
+ 			    },
+ 			    error: function (request, status, error) {
+ 			        alert(status);
+ 			    }
+ 			});
+  	 }
+  	
+  	 function feedbackModal(){
+  		 $("#feedbackCallerName").val($("#name").val());
+  	 }
+  	 
+  	
+  	
+  	function complaintSave(){
+  		var url = '/hao/complaint';
+ 		var form = $('#complaintForm');
+ 		var token = $('#_csrf').attr('content');
+		var header = $('#_csrf_header').attr('content');
+		
+ 		   $.ajax({
+ 			    type: "POST",
+ 			    url: url,
+ 			    data: $('#complaintForm').serialize(),
+ 			    beforeSend: function (xhr) {
+ 			        xhr.setRequestHeader(header, token);
+ 			    },
+ 			    success: function (data, textStatus, jqXHR) {
+ 			    	alert("Complaint saved Successfully");
+ 			    	$('#complaintModal').modal('toggle');
+ 			    },
+ 			    error: function (request, status, error) {
+ 			        alert(status);
+ 			    }
+ 			});
+  	 } 
+  	
+  	 function complaintModal(){
+  		 $("#complaintCallerName").val($("#name").val());
+  	 }
+  	 
+  	
+  	/* 
+  	 function foodSave(){
+  		var url = '/hao/foodSafety';
+ 		var form = $('#foodSafetyForm');
+ 		var token = $('#_csrf').attr('content');
+		var header = $('#_csrf_header').attr('content');
+		
+ 		   $.ajax({
+ 			    type: "POST",
+ 			    url: url,
+ 			    data: $('#foodSafetyForm').serialize(),
+ 			    beforeSend: function (xhr) {
+ 			        xhr.setRequestHeader(header, token);
+ 			    },
+ 			    success: function (data, textStatus, jqXHR) {
+ 			    	alert("Saved Successfully");
+ 			    	$('#foodSafetyModal').modal('toggle');
+ 			    },
+ 			    error: function (request, status, error) {
+ 			        alert(status);
+ 			    }
+ 			});
+  	 }
+  	  */
+  	 
+  	
+  	
+  	function retrieveSubType() {
+  	    var url = '/hao/retrieveSubType';
+  	  var data = {}
+  	  data["selectedCallType"] = $("#callType").val();
+		var token = $('#_csrf').attr('content');
+		var header = $('#_csrf_header').attr('content');
+		$.ajax({
+		    type: "POST",
+		    url: url,
+		    data: data,
+		    beforeSend: function (xhr) {
+		        xhr.setRequestHeader(header, token);
+		    },
+		    success: function (data, textStatus, jqXHR) {
+		    	$("#subTypeDiv").html(data);
+		    },
+		    error: function (request, status, error) {
+		        alert(status);
+		    }
+		});
+  	}
+  	
+  	function retrieveFile() {
+  	    var url = '/hao/symptomsFile';
+  	  var data = {}
+  	  data["symptoms"] = "external";
+		var token = $('#_csrf').attr('content');
+		var header = $('#_csrf_header').attr('content');
+
+		$.ajax({
+		    type: "GET",
+		    url: url,
+		    data: data,
+		    beforeSend: function (xhr) {
+		        xhr.setRequestHeader(header, token);
+		    },
+		    success: function (data, textStatus, jqXHR) {
+		    	retrieveAllSymptoms();
+		    	var fileDisplay = "/file/Display Setting.pdf"
+		    	$("#fileContent").html('<embed src="'+fileDisplay+'" type="application/pdf" width="100%" height="600px"></embed>');
+		    	
+		    	$("#fileViewModal").modal();
+		    },
+		    error: function (request, status, error) {
+		        alert(status);
+		    }
+		});
+  	}
+  	
+  	
+  	
+  	function retrieveFileAll() {
+  	    var url = '/hao/symptomsFile';
+  	  var data = {}
+  	  data["symptoms"] = "external";
+		var token = $('#_csrf').attr('content');
+		var header = $('#_csrf_header').attr('content');
+
+		$.ajax({
+		    type: "GET",
+		    url: url,
+		    data: data,
+		    beforeSend: function (xhr) {
+		        xhr.setRequestHeader(header, token);
+		    },
+		    success: function (data, textStatus, jqXHR) {
+		    	var fileDisplay = "/file/Display Setting.pdf"
+		    	$("#fileContent").html('<embed src="'+fileDisplay+'" type="application/pdf" width="100%" height="600px"></embed>');
+		    	
+		    	$("#fileViewModal").modal();
+		    },
+		    error: function (request, status, error) {
+		        alert(status);
+		    }
+		});
+  	}
+  	
+  	
+
+  	
+  	function loadSymptomsTree(dataJson){
+  		dataJson = JSON.stringify(dataJson);
+  		dataJson = "["+dataJson+"]";
+  		 var $checkableTree = $('#treeview-checkable').treeview({
+  	          data: dataJson,
+  	          showIcon: true,
+  	          showCheckbox: true,
+  	          onNodeChecked: function(event, node) {
+  	        	$('#treeview-checkable').treeview('disableAll', { silent: true });
+  	        	$('#treeview-checkable').treeview('enableNode', [ node.nodeId, { silent: true } ]);
+  	        	$('#treeview-checkable').treeview('selectNode', [ node.nodeId, { silent: false } ]);
+  	        	retrieveDiseaseInfo(node);
+  	          },
+  	          onNodeUnchecked: function (event, node) {
+  	        	$('#treeview-checkable').treeview('enableAll', { silent: true });
+
+  	          },
+  	          onNodeSelected: function(event, node) {
+  	        	  $('#checkable-output').show();
+ 	        	 
+	        	  $('#checkable-output-symptoms').empty();
+	              $('#checkable-output-symptoms').prepend('<p>' + node.symptomsTypeDescreption + '</p>');
+	              
+	              $('#checkable-output-action').empty();
+	              $('#checkable-output-action').prepend('<p>' + node.symptomsTypeAction + '</p>');
+	              
+	              $('#checkable-output-dosndonts').empty();
+	              $('#checkable-output-dosndonts').prepend('<p>' + node.symptomsTypeDosAndDonts + '</p>');
+	              
+	              $('#checkable-output-information').empty();
+	              $('#checkable-output-information').prepend('<p>' + node.symptomsTypeInformation + '</p>');
+  	            },
+  	            onNodeUnselected: function (event, node) {
+  	            	$('#checkable-output').hide();
+  	            }
+  	        });
+
+  	}
+  	
+  	function searchTree(){
+  		$('#btn-search').click();
+  	}
+  	
+  	function loadAllSymptomsTree(dataJson){
+  		dataJson = JSON.stringify(dataJson);
+  		dataJson = "["+dataJson+"]";
+  		 var $checkableTree = $('#treeview-checkable1').treeview({
+  	          data: dataJson,
+  	          showIcon: true,
+  	          showCheckbox: true,
+  	          multiSelect: false,
+  	          onNodeChecked: function(event, node) {
+  	        	//$('#checkable-output1').hide();
+  	        	$('#treeview-checkable1').treeview('disableAll', { silent: true });
+  	        	$('#treeview-checkable1').treeview('enableNode', [ node.nodeId, { silent: true } ]);
+  	        	$('#treeview-checkable1').treeview('selectNode', [ node.nodeId, { silent: false } ]);
+  	        	$("#diseaseSummaryProvided").val($("#diseaseSummaryProvided").val() + node.text + ";");
+  	        	//retrieveFileAll();
+  	        	//var fileDisplay = "/file/Display Setting.pdf"
+  	        	var fileDisplay = node.text;
+		    	$("#fileContent").html('<embed src="/file/pdf/'+fileDisplay+'.pdf" type="application/pdf" width="100%" height="600px"></embed>');
+		    	
+		    	$("#fileViewModal").modal();
+  	        	if($('#input-search').val()){
+		    		$('#btn-search').click();
+		    	}
+  	          },
+  	          onNodeUnchecked: function (event, node) {
+  	        	$('#treeview-checkable1').treeview('enableAll', { silent: true });
+  	        	$("#fileContent").empty();
+  	        	//$('#checkable-output1').show();
+  	        	if($('#input-search').val()){
+		    		$('#btn-search').click();
+		    	}
+  	          },
+  	          onNodeSelected: function(event, node) {
+  	        	 /*  $('#checkable-output1').show();
+	        	 
+	        	  $('#checkable-output1-symptoms').empty();
+	              $('#checkable-output1-symptoms').prepend('<p>' + node.symptomsTypeDescreption + '</p>');
+	              
+	              $('#checkable-output1-action').empty();
+	              $('#checkable-output1-action').prepend('<p>' + node.symptomsTypeAction + '</p>');
+	              
+	              $('#checkable-output1-dosndonts').empty();
+	              $('#checkable-output1-dosndonts').prepend('<p>' + node.symptomsTypeDosAndDonts + '</p>');
+	              
+	              $('#checkable-output1-information').empty();
+	              $('#checkable-output1-information').prepend('<p>' + node.symptomsTypeInformation + '</p>'); */
+	              
+	  	            if($('#input-search').val()){
+	  	            	 setTimeout(searchTree, 10);
+			    	}
+  	            },
+  	            onNodeUnselected: function (event, node) {
+  	            	/* $('#checkable-output1').hide(); */
+  	            	if($('#input-search').val()){
+  	            		 setTimeout(searchTree, 10);
+  			    	}
+  	            }
+  	        });
+  		$.bind($checkableTree, $.proxy($checkableTree.callback, $checkableTree));
+  		var search = function(e) {
+            var pattern = $('#input-search').val();
+            var options = {
+              ignoreCase: true
+            };
+            var results = $checkableTree.treeview('search', [ pattern, options ]);
+            var output = '<p>' + results.length + ' matches found</p>';
+            $.each(results, function (index, result) {
+              output += '<p>- ' + result.text + '</p>';
+            });
+            $('#search-output').html(output);
+          }
+          $('#btn-search').on('click', search);
+          $('#input-search').on('keyup', search);
+          $('#btn-clear-search').on('click', function (e) {
+            $checkableTree.treeview('clearSearch');
+            $('#input-search').val('');
+            $('#search-output').html('');
+          });
+          
+          $("#input-search").on("keyup", function() {
+        	    var value = $(this).val().toLowerCase();
+        	    $("#treeview-checkable1 li").filter(function() {
+        	      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        	    });
+        	  });
+          
+          $("#btn-search").on("click", function() {
+      	    var value = $("#input-search").val().toLowerCase();
+      	    $("#treeview-checkable1 li").filter(function() {
+      	      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+      	    });
+      	  });
+          
+          $('.has-clear input[type="text"]').on('input propertychange', function() {
+        	  var $this = $(this);
+        	  var visible = Boolean($this.val());
+        	  $this.siblings('.form-control-clear').toggleClass('hidden', !visible);
+        	}).trigger('propertychange');
+
+        	$('.form-control-clear').click(function() {
+        	  $(this).siblings('input[type="text"]').val('')
+        	    .trigger('propertychange').focus();
+        	});
+        	
+        	$("#fileContent").html('');
+  	}
+  	
+  	
+  	$('input[name="callHandling"]').change(function(){
+  		if($(this).is(':checked') && $(this).val() =='yes'){
+  			$('#yesModal').modal('show');
+  		}
+  		
+  	}); 
+  	
+  	
+  	
+	function retrieveTalluks() {
+  	    var url = '/hao/retrieveTalluks';
+  	  var data = {}
+  	  data["selectedDistrict"] = $("#district").val();
+		var token = $('#_csrf').attr('content');
+		var header = $('#_csrf_header').attr('content');
+
+		$.ajax({
+		    type: "POST",
+		    url: url,
+		    data: data,
+		    beforeSend: function (xhr) {
+		        xhr.setRequestHeader(header, token);
+		    },
+		    success: function (data, textStatus, jqXHR) {
+		    	$("#tallukDiv").html(data);
+		    },
+		    error: function (request, status, error) {
+		        alert(status);
+		    }
+		});
+  	}
+  	
+  	function retrieveVillages() {
+  	    var url = '/hao/retrieveVillages';
+  	  var data = {}
+  	  data["selectedTalluk"] = $("#talluk").val();
+		var token = $('#_csrf').attr('content');
+		var header = $('#_csrf_header').attr('content');
+
+		$.ajax({
+		    type: "POST",
+		    url: url,
+		    data: data,
+		    beforeSend: function (xhr) {
+		        xhr.setRequestHeader(header, token);
+		    },
+		    success: function (data, textStatus, jqXHR) {
+		    	$("#villageDiv").html(data);
+		    },
+		    error: function (request, status, error) {
+		        alert(status);
+		    }
+		});
+  	}
+  	
+  		$(function() {
+
+        var defaultData = [
+          {
+            text: 'Parent 1',
+            href: '#parent1',
+            tags: ['4'],
+            nodes: [
+              {
+                text: 'Child 1',
+                href: '#child1',
+                tags: ['2'],
+                nodes: [
+                  {
+                    text: 'Grandchild 1',
+                    href: '#grandchild1',
+                    tags: ['0']
+                  },
+                  {
+                    text: 'Grandchild 2',
+                    href: '#grandchild2',
+                    tags: ['0']
+                  }
+                ]
+              },
+              {
+                text: 'Child 2',
+                href: '#child2',
+                tags: ['0']
+              }
+            ]
+          },
+          {
+            text: 'Parent 2',
+            href: '#parent2',
+            tags: ['0']
+          },
+          {
+            text: 'Parent 3',
+            href: '#parent3',
+             tags: ['0']
+          },
+          {
+            text: 'Parent 4',
+            href: '#parent4',
+            tags: ['0']
+          },
+          {
+            text: 'Parent 5',
+            href: '#parent5'  ,
+            tags: ['0']
+          }
+        ];
+
+        var alternateData = [
+          {
+            text: 'Parent 1',
+            tags: ['2'],
+            nodes: [
+              {
+                text: 'Child 1',
+                tags: ['3'],
+                nodes: [
+                  {
+                    text: 'Grandchild 1',
+                    tags: ['6']
+                  },
+                  {
+                    text: 'Grandchild 2',
+                    tags: ['3']
+                  }
+                ]
+              },
+              {
+                text: 'Child 2',
+                tags: ['3']
+              }
+            ]
+          },
+          {
+            text: 'Parent 2',
+            tags: ['7']
+          },
+          {
+            text: 'Parent 3',
+            icon: 'glyphicon glyphicon-earphone',
+            href: '#demo',
+            tags: ['11']
+          },
+          {
+            text: 'Parent 4',
+            icon: 'glyphicon glyphicon-cloud-download',
+            href: '/demo.html',
+            tags: ['19'],
+            selected: true
+          },
+          {
+            text: 'Parent 5',
+            icon: 'glyphicon glyphicon-certificate',
+            color: 'pink',
+            backColor: 'red',
+            href: 'http://www.tesco.com',
+            tags: ['available','0']
+          }
+        ];
+
+        var json = '[' +
+          '{' +
+            '"text": "Parent 1",' +
+            '"nodes": [' +
+              '{' +
+                '"text": "Child 1",' +
+                '"nodes": [' +
+                  '{' +
+                    '"text": "Grandchild 1"' +
+                  '},' +
+                  '{' +
+                    '"text": "Grandchild 2"' +
+                  '}' +
+                ']' +
+              '},' +
+              '{' +
+                '"text": "Child 2"' +
+              '}' +
+            ']' +
+          '},' +
+          '{' +
+            '"text": "Parent 2"' +
+          '},' +
+          '{' +
+            '"text": "Parent 3"' +
+          '},' +
+          '{' +
+            '"text": "Parent 4"' +
+          '},' +
+          '{' +
+            '"text": "Parent 5"' +
+          '}' +
+        ']';
+        
+        var json1 = '[' +
+        '{' +
+          '"text": "M.6",' +
+          '"icon": "glyphicon glyphicon-certificate",'+
+          '"color": "pink",'+
+          '"backColor": "null",'+
+          '"href": "http://www.tesco.com",'+
+          '"tags": ["available","0"],'+
+          '"nodes": [' +
+            '{' +
+              '"text": "M.6.1",' +
+              '"note": "M.6.1-note"' +
+            '},' +
+            '{' +
+            '"text": "M.6.2"' +
+	          '},' +
+	          '{' +
+	          '"text": "M.6.3"' +
+		      '},' +
+		      '{' +
+		      '"text": "M.6.4"' +
+			  '},' +
+			  '{' +
+			  '"text": "M.6.5"' +
+			  '},' +
+              '{' +
+              '"text": "M.6.6"' +
+            '}' +
+          ']' +
+        '}' +
+      ']';
+
+
+  		});
+  		
+  		
+  		
+
+  		
+  		
+  	</script>
+       </th:block>
+    </body>
+    
+</html>
